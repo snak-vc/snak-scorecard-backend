@@ -99,7 +99,7 @@ async def send_email_with_attachment(
         html_content_to_user = f"""
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="color: white; font-size: 2.5rem; margin: 0; font-weight: 700;">SNAK</h1>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0; font-weight: 700;">SNAK Machine</h1>
                 <p style="color: white; font-size: 1.2rem; margin: 10px 0 0 0; opacity: 0.9;">Scorecard Analysis</p>
             </div>
             
@@ -107,22 +107,21 @@ async def send_email_with_attachment(
                 <h2 style="color: #2c3e50; margin-bottom: 20px;">🎉 Submission Received Successfully!</h2>
                 
                 <p style="color: #34495e; font-size: 1.1rem; line-height: 1.6;">
-                    Hi there from the <strong>{company_name}</strong> team,
+                    Hi there <strong>{company_name}</strong> team,
                 </p>
                 
                 <p style="color: #34495e; font-size: 1.1rem; line-height: 1.6;">
                     Great news! We've successfully received your scorecard data submission.
                 </p>
                 
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #667eea;">
-                    <h3 style="color: #2c3e50; margin-bottom: 15px;">📋 What happens next:</h3>
+                    <h3 style="color: #2c3e50;">📋 What happens next:</h3>
                     <ul style="color: #34495e; line-height: 1.8; padding-left: 20px;">
                         <li>🔥 <strong>The SNAK Machine is now running</strong> your analysis</li>
                         <li>📊 Our team will process your data and generate insights</li>
                         <li>📧 <strong>Expect your results within 24 hours</strong></li>
                         <li>🎯 You'll receive a detailed scorecard report via email</li>
                     </ul>
-                </div>
+                
                 
                 <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 25px 0;">
                     <p style="color: #2d5a27; margin: 0; font-weight: 600;">
