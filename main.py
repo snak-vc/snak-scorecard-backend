@@ -29,7 +29,7 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY", "re_your-fallback-key")
 resend.api_key = RESEND_API_KEY
 
 EMAIL_CONFIG = {
-    "from_email": os.getenv("FROM_EMAIL", "SNAK Scorecard <sonia@snak.vc>"),
+    "from_email": os.getenv("FROM_EMAIL", "SNAK Scorecard <noreply@snak.vc>"),
     "to_email": os.getenv("TO_EMAIL", "contact@snak.vc")
 }
 
