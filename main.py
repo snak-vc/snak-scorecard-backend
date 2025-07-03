@@ -114,8 +114,8 @@ async def send_email_with_attachment(
                     Great news! We've successfully received your scorecard data submission.
                 </p>
                 
-                    <h3 style="color: #2c3e50;">📋 What happens next:</h3>
-                    <ul style="color: #34495e; line-height: 1.8; padding-left: 20px;">
+                    <h3 style="color: #2c3e50; font-size: 1.1rem; line-height: 1.6;">📋 What happens next:</h3>
+                    <ul style="color: #34495e; font-size: 1.1rem; line-height: 1.6; padding-left: 20px;">
                         <li>🔥 <strong>The SNAK Machine is now running</strong> your analysis</li>
                         <li>📊 Our team will process your data and generate insights</li>
                         <li>📧 <strong>Expect your results within 24 hours</strong></li>
