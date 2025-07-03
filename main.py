@@ -94,7 +94,7 @@ async def send_email_with_attachment(
         await asyncio.sleep(1)
         
         # EMAIL 2: Send confirmation to submitter (no attachment)
-        subject_to_user = f"✅ SNAK Scorecard Submission Confirmed - {company_name}"
+        subject_to_user = f"✅ SNAK Scorecard Submission Confirmed"
         
         html_content_to_user = f"""
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto;">
