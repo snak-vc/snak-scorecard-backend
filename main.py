@@ -1,18 +1,13 @@
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
+import resend
+import base64
 import os
 import tempfile
 from datetime import datetime
 import asyncio
 from typing import Optional
-import resend
-import base64
 
 app = FastAPI(title="SNAK Scorecard API", version="1.0.0")
 
@@ -30,7 +25,7 @@ MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
 ALLOWED_EXTENSIONS = {".xlsx", ".xls"}
 
 # Resend configuration - USES ENVIRONMENT VARIABLES
-RESEND_API_KEY = os.getenv("RESEND_API_KEY", "re_your-fallback-key")  # Set in Railway
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "re_your-fallback-key")
 resend.api_key = RESEND_API_KEY
 
 EMAIL_CONFIG = {
@@ -44,17 +39,12 @@ async def send_email_with_attachment(
     file_content: bytes, 
     filename: str
 ) -> bool:
-    """Send email using Resend"""
+    """Send email using Resend - sends to both SNAK team and submitter"""
     try:
-        print(f"📧 Sending email via Resend...")
-        print(f"   Company: {company_name}")
-        print(f"   User Email: {user_email}")
-        print(f"   File: {filename}")
+        # EMAIL 1: Send to SNAK team with attachment
+        subject_to_snak = f"{company_name} + SNAK Scorecard Request"
         
-        # Create email content
-        subject = f"{company_name} + SNAK Scorecard Request"
-        
-        html_content = f"""
+        html_content_to_snak = f"""
         <h2>🎯 New SNAK Scorecard Analysis Request</h2>
         
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -88,26 +78,91 @@ async def send_email_with_attachment(
         # Encode file for attachment
         encoded_file = base64.b64encode(file_content).decode()
         
-        # Send email using Resend
-        email_response = resend.Emails.send({
+        # Send email to SNAK team with attachment
+        email_to_snak = resend.Emails.send({
             "from": EMAIL_CONFIG["from_email"],
             "to": [EMAIL_CONFIG["to_email"]],
-            "subject": subject,
-            "html": html_content,
+            "subject": subject_to_snak,
+            "html": html_content_to_snak,
             "attachments": [{
                 "filename": filename,
                 "content": encoded_file
             }]
         })
         
-        print(f"✅ Resend email sent successfully!")
-        print(f"   Email ID: {email_response.get('id', 'Unknown')}")
+        # Small delay between emails
+        await asyncio.sleep(1)
+        
+        # EMAIL 2: Send confirmation to submitter (no attachment)
+        subject_to_user = f"✅ SNAK Scorecard Submission Confirmed - {company_name}"
+        
+        html_content_to_user = f"""
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                <h1 style="color: white; font-size: 2.5rem; margin: 0; font-weight: 700;">SNAK</h1>
+                <p style="color: white; font-size: 1.2rem; margin: 10px 0 0 0; opacity: 0.9;">Scorecard Analysis</p>
+            </div>
+            
+            <div style="background: white; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h2 style="color: #2c3e50; margin-bottom: 20px;">🎉 Submission Received Successfully!</h2>
+                
+                <p style="color: #34495e; font-size: 1.1rem; line-height: 1.6;">
+                    Hi there from the <strong>{company_name}</strong> team,
+                </p>
+                
+                <p style="color: #34495e; font-size: 1.1rem; line-height: 1.6;">
+                    Great news! We've successfully received your scorecard data submission.
+                </p>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #667eea;">
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">📋 What happens next:</h3>
+                    <ul style="color: #34495e; line-height: 1.8; padding-left: 20px;">
+                        <li>🔥 <strong>The SNAK Machine is now running</strong> your analysis</li>
+                        <li>📊 Our team will process your data and generate insights</li>
+                        <li>📧 <strong>Expect your results within 24 hours</strong></li>
+                        <li>🎯 You'll receive a detailed scorecard report via email</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 25px 0;">
+                    <p style="color: #2d5a27; margin: 0; font-weight: 600;">
+                        ✅ <strong>File received:</strong> {filename} ({len(file_content) / 1024 / 1024:.1f} MB)
+                    </p>
+                </div>
+                
+                <p style="color: #34495e; font-size: 1rem; line-height: 1.6;">
+                    If you have any questions or need to submit additional data, feel free to reach out to us.
+                </p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 25px; border-radius: 25px; display: inline-block; font-weight: 600;">
+                        🚀 Analysis in progress...
+                    </div>
+                </div>
+                
+                <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 30px 0;">
+                
+                <p style="color: #7f8c8d; font-size: 0.9rem; text-align: center; margin: 0;">
+                    Best regards,<br>
+                    <strong>The SNAK Team</strong><br>
+                    <em>Digitizing Old Line Industries</em>
+                </p>
+            </div>
+        </div>
+        """
+        
+        # Send confirmation email to user
+        email_to_user = resend.Emails.send({
+            "from": EMAIL_CONFIG["from_email"],
+            "to": [user_email],
+            "subject": subject_to_user,
+            "html": html_content_to_user
+        })
         
         return True
         
     except Exception as e:
-        print(f"❌ Resend email error: {str(e)}")
-        print(f"   Error type: {type(e).__name__}")
+        print(f"Error sending emails: {str(e)}")
         return False
 
 def validate_file(file: UploadFile) -> Optional[str]:
@@ -162,7 +217,7 @@ async def submit_scorecard(
                 detail=f"File too large. Maximum size is {MAX_FILE_SIZE / 1024 / 1024:.0f}MB"
             )
         
-        # Send email
+        # Send emails
         success = await send_email_with_attachment(
             companyName.strip(),
             email.strip(),
@@ -172,7 +227,7 @@ async def submit_scorecard(
         
         if success:
             return JSONResponse(
-                content={"message": "Scorecard request submitted successfully!"}, 
+                content={"message": "Scorecard request submitted successfully! Check your email for confirmation."}, 
                 status_code=200
             )
         else:
@@ -193,7 +248,4 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Starting SNAK Scorecard API...")
-    print("📧 Email service: Resend")
-    print("🌐 Access your app at: http://localhost:8000")
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
