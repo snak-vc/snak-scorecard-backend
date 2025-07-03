@@ -29,7 +29,7 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY", "re_your-fallback-key")
 resend.api_key = RESEND_API_KEY
 
 EMAIL_CONFIG = {
-    "from_email": os.getenv("FROM_EMAIL", "SNAK Scorecard <noreply@yourdomain.com>"),
+    "from_email": os.getenv("FROM_EMAIL", "SNAK Scorecard <sonia@snak.vc>"),
     "to_email": os.getenv("TO_EMAIL", "contact@snak.vc")
 }
 
@@ -91,7 +91,7 @@ async def send_email_with_attachment(
         })
         
         # Small delay between emails
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
         
         # EMAIL 2: Send confirmation to submitter (no attachment)
         subject_to_user = f"✅ SNAK Scorecard Submission Confirmed - {company_name}"
@@ -131,7 +131,7 @@ async def send_email_with_attachment(
                 </div>
                 
                 <p style="color: #34495e; font-size: 1rem; line-height: 1.6;">
-                    If you have any questions or need to submit additional data, feel free to reach out to us.
+                    If you have any questions feel free to reach out to us.
                 </p>
                 
                 <div style="text-align: center; margin: 30px 0;">
@@ -145,7 +145,7 @@ async def send_email_with_attachment(
                 <p style="color: #7f8c8d; font-size: 0.9rem; text-align: center; margin: 0;">
                     Best regards,<br>
                     <strong>The SNAK Team</strong><br>
-                    <em>Digitizing Old Line Industries</em>
+                    
                 </p>
             </div>
         </div>
