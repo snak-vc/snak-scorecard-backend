@@ -91,7 +91,7 @@ async def send_email_with_attachment(
         })
         
         # Small delay between emails
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
         
         # EMAIL 2: Send confirmation to submitter (no attachment)
         subject_to_user = f"✅ SNAK Scorecard Submission Confirmed - {company_name}"
